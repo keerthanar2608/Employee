@@ -1,5 +1,5 @@
 # Employee
-<pre>
+
   DATA CLASSES
 
 1. DataEmployee
@@ -47,4 +47,4 @@ Returns total working hours as a Double
 If no check-in found, returns null
 
 If already checked out, returns -1.0
-</pre>
+
