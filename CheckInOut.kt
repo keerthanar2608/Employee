@@ -1,9 +1,7 @@
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.Duration
-
 
 data class DataEmployee(
     val id: Int,
@@ -13,60 +11,47 @@ data class DataEmployee(
     val ReportingTo: Int? = null
 )
 
-
 data class DataAttendance(
     val EmployeeId: Int,
-    val CheckInDate: LocalDate,
-    val CheckInTime: LocalTime,
-    var CheckOutTime: LocalTime? = null
+    val CheckInDateTime: LocalDateTime,
+    var CheckOutDateTime: LocalDateTime? = null
 )
-
 
 val EmployeeList = mutableListOf<DataEmployee>()
 val AttendanceList = mutableListOf<DataAttendance>()
 
-
 fun validateEmployee(employeeId: Int): DataEmployee? {
-
     return EmployeeList.find { it.id == employeeId }
 }
 
 fun hasAlreadyCheckedIn(employeeId: Int, date: LocalDate): Boolean {
-
-    return AttendanceList.any { it.EmployeeId == employeeId && it.CheckInDate == date }
+    return AttendanceList.any {
+        it.EmployeeId == employeeId && it.CheckInDateTime.toLocalDate() == date
+    }
 }
 
-
 fun recordCheckIn(employeeId: Int, checkInDateTime: LocalDateTime): DataAttendance {
-
-    val checkInDate = checkInDateTime.toLocalDate()
-    val checkInTime = checkInDateTime.toLocalTime()
-    val attendanceEntry = DataAttendance(employeeId, checkInDate, checkInTime)
+    val attendanceEntry = DataAttendance(employeeId, checkInDateTime)
     AttendanceList.add(attendanceEntry)
     return attendanceEntry
 }
 
-
 fun recordCheckOut(employeeId: Int, checkOutDateTime: LocalDateTime): Double? {
-
     val date = checkOutDateTime.toLocalDate()
-    val time = checkOutDateTime.toLocalTime()
 
-    val attendance = AttendanceList.find { it.EmployeeId == employeeId && it.CheckInDate == date }
-        ?: return null
+    val attendance = AttendanceList.find {
+        it.EmployeeId == employeeId && it.CheckInDateTime.toLocalDate() == date
+    } ?: return null
 
-    if (attendance.CheckOutTime != null) return -1.0
+    if (attendance.CheckOutDateTime != null) return -1.0
 
-    attendance.CheckOutTime = time
+    attendance.CheckOutDateTime = checkOutDateTime
 
-    val duration = Duration.between(attendance.CheckInTime, time)
+    val duration = Duration.between(attendance.CheckInDateTime, checkOutDateTime)
     return duration.toMinutes().toDouble() / 60.0
 }
 
-
 fun main() {
-
-
     EmployeeList.add(DataEmployee(1, "Anu", "M", "Manager"))
     EmployeeList.add(DataEmployee(2, "Sowmi", "S", "HR", 1))
     EmployeeList.add(DataEmployee(3, "Keerthana", "Ravikumar", "TeamLeader", 1))
@@ -103,16 +88,12 @@ fun main() {
             continue
         }
 
-        val dateTimeInput = if (parts.size == 3) {
-            parts[2]
-        } else {
-            null
-        }
+        val dateTimeInput = if (parts.size == 3) parts[2] else null
+
         val dateTime = try {
             if (dateTimeInput == null) {
                 LocalDateTime.now()
-            }
-            else{
+            } else {
                 LocalDateTime.parse(dateTimeInput)
             }
         } catch (e: Exception) {
@@ -134,26 +115,24 @@ fun main() {
         when (command) {
             "checkin" -> {
                 if (hasAlreadyCheckedIn(employeeId, dateTime.toLocalDate())) {
-                    println("Employee ID ${employee.id}: ${employee.FirstName} ${employee.LastName} has already checked in on ${dateTime.toLocalDate()}.")
+                    println("Employee ID ${employee.id}: ${employee.FirstName} ${employee.LastName} has already checked in today.")
                     continue
                 }
                 val attendance = recordCheckIn(employeeId, dateTime)
-                val formattedTime = attendance.CheckInTime.format(DateTimeFormatter.ofPattern("HH:mm"))
+                val formattedTime = attendance.CheckInDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
                 val reportingMessage = employee.ReportingTo?.let { "(Reports to: $it)" } ?: "null"
-                println("Employee ID ${employee.id}: ${employee.FirstName} ${employee.LastName} checked in on ${attendance.CheckInDate} at $formattedTime. $reportingMessage")
+                println("Employee ID ${employee.id}: ${employee.FirstName} ${employee.LastName} checked in at $formattedTime. $reportingMessage")
             }
 
             "checkout" -> {
-
                 val hoursWorked = recordCheckOut(employeeId, dateTime)
 
                 when {
                     hoursWorked == null -> println("Employee ID ${employee.id} has not checked in today. Cannot checkout.")
                     hoursWorked == -1.0 -> println("Employee ID ${employee.id} has already checked out today.")
-
                     else -> {
-                        val formattedTime = dateTime.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm"))
-                        println("Employee ID ${employee.id}: ${employee.FirstName} ${employee.LastName} checked out on ${dateTime.toLocalDate()} at $formattedTime.")
+                        val formattedTime = dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+                        println("Employee ID ${employee.id}: ${employee.FirstName} ${employee.LastName} checked out at $formattedTime.")
                         println("Total working hours: %.2f".format(hoursWorked))
                     }
                 }
