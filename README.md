@@ -23,8 +23,8 @@ CheckInTime: LocalTime – Time of check-in
 
 CheckOutTime: LocalTime? – (Optional) Time of check-out; null if not checked out yet
 
-### FUNCTIONS
- validateEmployee(employeeId: Int): DataEmployee?
+# FUNCTIONS:
+### validateEmployee(employeeId: Int): DataEmployee?
 Checks if an employee with the given employeeId exists in the EmployeeList.
 
  Returns the corresponding DataEmployee if found
