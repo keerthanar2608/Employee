@@ -1,3 +1,11 @@
+##  Features
+
+- `feat: validateEmployee` – Checks whether an employee exists in the system
+- `feat: recordCheckIn` – Logs employee check-in with date and time
+- `feat: recordCheckOut` – Logs check-out and calculates working hours
+
+
+
 # Data class
 ### DataEmployee
 Represents the details of an employee in the system.
