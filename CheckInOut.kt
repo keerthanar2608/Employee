@@ -27,16 +27,18 @@ val AttendanceList = mutableListOf<DataAttendance>()
 
 
 fun validateEmployee(employeeId: Int): DataEmployee? {
+
     return EmployeeList.find { it.id == employeeId }
 }
 
-
 fun hasAlreadyCheckedIn(employeeId: Int, date: LocalDate): Boolean {
+
     return AttendanceList.any { it.EmployeeId == employeeId && it.CheckInDate == date }
 }
 
 
 fun recordCheckIn(employeeId: Int, checkInDateTime: LocalDateTime): DataAttendance {
+
     val checkInDate = checkInDateTime.toLocalDate()
     val checkInTime = checkInDateTime.toLocalTime()
     val attendanceEntry = DataAttendance(employeeId, checkInDate, checkInTime)
@@ -46,6 +48,7 @@ fun recordCheckIn(employeeId: Int, checkInDateTime: LocalDateTime): DataAttendan
 
 
 fun recordCheckOut(employeeId: Int, checkOutDateTime: LocalDateTime): Double? {
+
     val date = checkOutDateTime.toLocalDate()
     val time = checkOutDateTime.toLocalTime()
 
@@ -89,7 +92,7 @@ fun main() {
         val parts = input.trim().split(" ")
 
         if (parts.size < 2) {
-            println("Please enter command and Employee ID.")
+            println("Please enter both command and Employee ID.")
             continue
         }
 
@@ -100,12 +103,20 @@ fun main() {
             continue
         }
 
-        val dateTimeInput = if (parts.size == 3) parts[2] else null
+        val dateTimeInput = if (parts.size == 3) {
+            parts[2]
+        } else {
+            null
+        }
         val dateTime = try {
-            if (dateTimeInput == null) LocalDateTime.now()
-            else LocalDateTime.parse(dateTimeInput)
+            if (dateTimeInput == null) {
+                LocalDateTime.now()
+            }
+            else{
+                LocalDateTime.parse(dateTimeInput)
+            }
         } catch (e: Exception) {
-            println("Invalid date-time format. Use yyyy-MM-ddTHH:mm:ss.")
+            println("Invalid date-time format. Use yyyy-MM-ddTHH:mm")
             continue
         }
 
@@ -133,10 +144,13 @@ fun main() {
             }
 
             "checkout" -> {
+
                 val hoursWorked = recordCheckOut(employeeId, dateTime)
+
                 when {
                     hoursWorked == null -> println("Employee ID ${employee.id} has not checked in today. Cannot checkout.")
                     hoursWorked == -1.0 -> println("Employee ID ${employee.id} has already checked out today.")
+
                     else -> {
                         val formattedTime = dateTime.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm"))
                         println("Employee ID ${employee.id}: ${employee.FirstName} ${employee.LastName} checked out on ${dateTime.toLocalDate()} at $formattedTime.")
@@ -146,10 +160,8 @@ fun main() {
             }
 
             else -> {
-                println("Unknown command. Use 'checkin' or 'checkout'.")
+                println("Invalid command. Use 'checkin' or 'checkout'.")
             }
         }
     }
 }
-
-
