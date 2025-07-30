@@ -1,50 +1,63 @@
-# Employee
+#Data class
+###DataEmployee
+Represents the details of an employee in the system.
 
-  DATA CLASSES
+id: Int – Unique employee ID
 
-1. DataEmployee
-Stores details about an employee.
+FirstName: String – Employee’s first name
 
-id: Int
+LastName: String – Employee’s last name
 
-FirstName: String
+Role: String – Job title or position
 
-LastName: String
+ReportingTo: Int? – (Optional) ID of the manager they report to; can be null if none
 
-Role: String
+ ###DataAttendance
+Represents daily attendance information for one employee.
 
-ReportingTo: Int? (nullable, optional reporting manager ID)
+EmployeeId: Int – ID of the employee this record belongs to
 
-2. DataAttendance
-Stores daily attendance per employee.
+CheckInDate: LocalDate – Date of check-in
 
-EmployeeId: Int
+CheckInTime: LocalTime – Time of check-in
 
-CheckInDate: LocalDate
+CheckOutTime: LocalTime? – (Optional) Time of check-out; null if not checked out yet
 
-CheckInTime: LocalTime
+###FUNCTIONS
+ validateEmployee(employeeId: Int): DataEmployee?
+Checks if an employee with the given employeeId exists in the EmployeeList.
 
-CheckOutTime: LocalTime? (nullable)
+ Returns the corresponding DataEmployee if found
 
-FUNCTIONS
+ Returns null if the employee doesn’t exist
 
-1. validateEmployee(employeeId: Int): DataEmployee?
-Checks whether an employee with the given ID exists in the EmployeeList.
+###hasAlreadyCheckedIn(employeeId: Int, date: LocalDate): Boolean
+Checks if the employee with the given employeeId has already checked in on the specified date.
 
-2. hasAlreadyCheckedIn(employeeId: Int, date: LocalDate): Boolean
-Checks whether the given employee has already checked in on the specified date.
+Returns true if already checked in
 
-3. recordCheckIn(employeeId: Int, checkInDateTime: LocalDateTime): DataAttendance
-Records the check-in details of the employee and adds it to the attendance list.
+Returns false if not
 
-4. recordCheckOut(employeeId: Int, checkOutDateTime: LocalDateTime): Double?
-If valid check-in exists and employee has not already checked out:
+###recordCheckIn(employeeId: Int, checkInDateTime: LocalDateTime): DataAttendance
+Records the employee’s check-in time and creates a new DataAttendance entry.
 
-Records check-out time
+Stores both the date and time of check-in
+
+Returns the created DataAttendance object
+
+### recordCheckOut(employeeId: Int, checkOutDateTime: LocalDateTime): Double?
+Handles employee check-out logic. Returns total working hours if valid.
+
+If employee checked in and hasn’t checked out yet:
+
+Updates the record with check-out time
 
 Returns total working hours as a Double
 
-If no check-in found, returns null
+If no check-in is found:
 
-If already checked out, returns -1.0
+Returns null
 
+If already checked out:
+
+Returns -1.0
