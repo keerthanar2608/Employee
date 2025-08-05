@@ -52,6 +52,7 @@ fun recordCheckOut(employeeId: Int, checkOutDateTime: LocalDateTime): Double? {
 }
 
 fun main() {
+    // Seed Employees
     EmployeeList.add(DataEmployee(1, "Anu", "M", "Manager"))
     EmployeeList.add(DataEmployee(2, "Sowmi", "S", "HR", 1))
     EmployeeList.add(DataEmployee(3, "Keerthana", "Ravikumar", "TeamLeader", 1))
@@ -66,36 +67,43 @@ fun main() {
     val today = LocalDate.now()
 
     while (true) {
-        print("\nEnter command (checkin/checkout), Employee ID and optional DateTime (yyyy-MM-ddTHH:mm), separated by space: ")
-        val input = readln()
+        println("\n--- Attendance System ---")
+        println("1. Check-in")
+        println("2. Check-out")
+        println("-1. Exit")
+        print("Enter your choice: ")
+        val option = readln().trim()
 
-        if (input == "-1") {
+        if (option == "-1") {
             println("Exiting.")
             break
         }
 
-        val parts = input.trim().split(" ")
-
-        if (parts.size < 2) {
-            println("Please enter both command and Employee ID.")
+        if (option != "1" && option != "2") {
+            println("Invalid option.")
             continue
         }
 
-        val command = parts[0].lowercase()
-        val employeeId = parts[1].toIntOrNull()
+        // Prompt single-line input: EmployeeId and optional DateTime
+        print("Enter Employee ID and optional DateTime (yyyy-MM-ddTHH:mm), separated by space: ")
+        val inputLine = readln().trim()
+        val parts = inputLine.split(" ")
+
+        if (parts.isEmpty()) {
+            println("Please enter Employee ID.")
+            continue
+        }
+
+        val employeeId = parts[0].toIntOrNull()
         if (employeeId == null) {
             println("Invalid Employee ID.")
             continue
         }
 
-        val dateTimeInput = if (parts.size == 3) parts[2] else null
-
+        val dateTimeInput = if (parts.size > 1) parts[1] else ""
         val dateTime = try {
-            if (dateTimeInput == null) {
-                LocalDateTime.now()
-            } else {
-                LocalDateTime.parse(dateTimeInput)
-            }
+            if (dateTimeInput.isBlank()) LocalDateTime.now()
+            else LocalDateTime.parse(dateTimeInput)
         } catch (e: Exception) {
             println("Invalid date-time format. Use yyyy-MM-ddTHH:mm")
             continue
@@ -112,8 +120,8 @@ fun main() {
             continue
         }
 
-        when (command) {
-            "checkin" -> {
+        when (option) {
+            "1" -> { // Check-in
                 if (hasAlreadyCheckedIn(employeeId, dateTime.toLocalDate())) {
                     println("Employee ID ${employee.id}: ${employee.FirstName} ${employee.LastName} has already checked in today.")
                     continue
@@ -124,7 +132,7 @@ fun main() {
                 println("Employee ID ${employee.id}: ${employee.FirstName} ${employee.LastName} checked in at $formattedTime. $reportingMessage")
             }
 
-            "checkout" -> {
+            "2" -> { // Check-out
                 val hoursWorked = recordCheckOut(employeeId, dateTime)
 
                 when {
@@ -136,10 +144,6 @@ fun main() {
                         println("Total working hours: %.2f".format(hoursWorked))
                     }
                 }
-            }
-
-            else -> {
-                println("Invalid command. Use 'checkin' or 'checkout'.")
             }
         }
     }
